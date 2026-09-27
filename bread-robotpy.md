@@ -44,18 +44,35 @@ The important design principle is that high-level code usually does not directly
 
 The robot uses:
 
+software
 - **Python 3.12 or newer**
 - **RobotPy / WPILib**
 - **Commands2**
 - **CTRE Phoenix 6**
-- **TalonFX motor controllers**
-- **CANcoders**
 - **PathPlannerLib**
 - **PhotonVision / PhotonLib**
 - **NetworkTables**
 - **SmartDashboard**
 
-The SystemCore robot configuration uses RobotPy 2027 prerelease packages and Phoenix 6 adapters.
+
+
+hardware
+- **TalonFX motor controllers**
+- **CANcoders**
+
+
+| Technology | Description |
+| :--- | :--- |
+| **Python 3.12** | The high-level programming language used to write the robot's code and logic. |
+| **RobotPy / WPILib** | The foundational software library that provides essential tools and code structures for controlling FIRST Robotics Competition (FRC) robots. |
+| **Commands2** | A framework within WPILib that helps programmers organize robot actions into clean, reusable command sequences. |
+| **CTRE Phoenix 6** | Software provided by Cross the Road Electronics (CTRE) to control and configure their hardware devices. |
+| **TalonFX motor controllers** | High-performance motor controllers with built-in sensors used to precisely drive and monitor the robot's motors. |
+| **CANcoders** | Standalone magnetic sensors that measure exact rotation and position across the robot's Controller Area Network (CAN). |
+| **PathPlannerLib** | A library that allows the robot to read pre-designed paths and autonomously drive along complex trajectories on the field. |
+| **PhotonVision / PhotonLib** | Computer vision software and libraries that process camera feeds to detect field targets and track the robot's position. |
+| **NetworkTables** | A network communication protocol that shares real-time data between the robot, the driver station computer, and coprocessors. |
+| **SmartDashboard** | A customizable user interface on the driver's computer that displays real-time diagnostics, sensor values, and robot status during a match. |
 
 ---
 
