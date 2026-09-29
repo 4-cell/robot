@@ -1,22 +1,22 @@
 robotypy step
+
+0. uninstall all  :  py -3 -m pip uninstall robotpy robotpy-cli wpilib robotpy-installer
+
 1. change directory to this
 
-   
    C:\Users\rosep\breadrobot\robot-code\robots\delta-systemcore
 then
-py -3.14 -m venv .venv
-
-2. \.venv\Scripts\activate
-
-3. python -m pip install robotpy-installer
 
 
-If you want to check version use
+2. py -3.14 -m venv .venv
 
+3. \.venv\Scripts\activate
 
-py -3 -m pip show robotpy-installer
+4. py -3 -m pip install robotpy-installer==2027.0.0a9
+ 
+5. py -3 -m pip show robotpy-installer
 
-4. py -3 -m pip install --upgrade robotpy-installer
+ 
 
 ```
 (.venv) C:\Users\rosep\breadrobot\robot-code\robots\delta-systemcore>python -m pip show robotpy-installer
@@ -24,24 +24,27 @@ Name: robotpy-installer
 Version: 2027.0.0a9
 ```
    
-5.python -m pip install robotpy
+6. py -3 -m pip install robotpy
+
+now, if I do: 
+py -3 -m pip show robotpy wpilib robotpy-installer
+
+I got:
+```
+Name: robotpy
+Version: 2026.2.2
+Name: wpilib
+Version: 2026.2.2
+Name: robotpy-installer
+Version: 2026.0.2
+```
 
 
-6. python -m robotpy sync
+7. py -3 -m robotpy sync
 
 ```
-ERROR: Cannot install robotpy and robotpy-commands-v2==2027.0.0a6.post1 because these package versions have conflicting dependencies.
-
-The conflict is caused by:
-    robotpy 2027.0.0a7 depends on wpilib==2027.0.0a7
-    robotpy-commands-v2 2027.0.0a6.post1 depends on wpilib==2027.0.0a6.post1
-
-Additionally, some packages in these conflicts have no matching distributions available for your environment:
-    wpilib
-
-To fix this you could try to:
-1. loosen the range of package versions you've specified
-2. remove package versions to allow pip to attempt to solve the dependency conflict
-
-ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
+(.venv) C:\Users\rosep\BREADRobot\zz_robot-code\robots\delta-systemcore> py -3 -m robotpy sync
+21:15:34:573 INFO    : robotpy.installer   : RobotPy Installer 2026.0.2
+21:15:34:574 INFO    : robotpy.installer   : -> caching files at C:\Users\rosep\wpilib\2026\robotpy
+ERROR: Only RobotPy 2026.x is supported by this version of robotpy-installer (C:\Users\rosep\BREADRobot\zz_robot-code\robots\delta-systemcore\pyproject.toml has 2027.0.0a6.post1)
 ```
