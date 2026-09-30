@@ -746,4 +746,89 @@ Sensors and motor controllers
 ```
 
 This separation keeps the intake behavior easy to test and allows the same subsystem logic to work with real hardware, fake hardware, or disabled hardware.
- 
+
+
+
+ # Question
+
+The intaker has two motors: one for deploying the intaker and the other for the roller that sucks in balls. When `self._state` is `IntakeState.INTAKING`, it should control the roller motor, but when `self._state` is `IntakeState.DEPLOY`, it should control the other motor. I only see `self._io.set_position` and `self._io.set_duty_cycle`. How do calling these two functions control different motors at the appropriate time?
+
+# Answer
+
+`self._io.set_position()` and `self._io.set_duty_cycle()` are intended to control different motors through the concrete implementation of `IntakeIO`:
+
+- `set_position(...)` controls the pivot/deployment motor.
+- `set_duty_cycle(...)` controls the intake roller motor.
+
+The IO interface defines these commands separately:
+
+```Python
+class IntakeIO(Protocol):
+    def update_inputs(self, inputs: IntakeIOInputs) -> None: ...
+    def set_duty_cycle(self, duty_cycle: float) -> None: ...
+    def set_position(self, position_rotations: float) -> None: ...
+```
+
+The telemetry fields also indicate the intended motor separation:
+
+```Python
+class IntakeIOInputs:
+    roller_rps: float = 0.0
+    roller_volts: float = 0.0
+    roller_amps: float = 0.0
+    pivot_position: float = 0.0
+    pivot_volts: float = 0.0
+    pivot_amps: float = 0.0
+```
+
+Therefore, when the state is INTAKING:
+
+```Python
+elif self._state is IntakeState.INTAKING:
+    self._target_roller_duty_cycle = IntakeConstants.INTAKING_DUTY_CYCLE
+    self._io.set_duty_cycle(self._target_roller_duty_cycle)
+    self._pivot_target_rotations = IntakeConstants.DEPLOYED_POSITION_ROTATIONS
+    self._io.set_position(self._pivot_target_rotations)
+```
+
+The calls are intended to work like this:
+set_duty_cycle(intaking duty cycle)  -> roller motor runs
+set_position(deployed rotations)     -> pivot motor moves or stays deployed
+
+When the state is DEPLOY:
+
+```Python
+elif self._state is IntakeState.DEPLOY:
+    self._pivot_target_rotations = IntakeConstants.DEPLOYED_POSITION_ROTATIONS
+    self._io.set_position(self._pivot_target_rotations)
+    self._target_roller_duty_cycle = IntakeConstants.STOPPED_DUTY_CYCLE
+    self._io.set_duty_cycle(self._target_roller_duty_cycle)
+```
+
+The intended behavior is:
+set_position(deployed rotations) -> deployment/pivot motor moves the intake
+set_duty_cycle(0)                -> roller motor is stopped
+
+The Intake subsystem itself does not directly know about motor controller objects. It communicates through the IntakeIO abstraction. The concrete hardware implementation must map each method to the correct motor, conceptually like this:
+
+```Python
+def set_duty_cycle(self, duty_cycle: float) -> None:
+    self.roller_motor.set(duty_cycle)
+
+def set_position(self, position_rotations: float) -> None:
+    self.pivot_motor.set_position(position_rotations)
+```
+
+So the architecture is:
+
+```text
+IntakeState.INTAKING
+    ├── set_duty_cycle(...) -> roller motor
+    └── set_position(...)    -> pivot/deployment motor
+
+IntakeState.DEPLOY
+    ├── set_position(...)    -> pivot/deployment motor
+    └── set_duty_cycle(0)    -> roller motor stopped
+```
+
+The important caveat is that subsystem.py only defines the requested behavior. It does not prove how the motors are electrically controlled. The concrete class implementing IntakeIO must connect set_duty_cycle() to the roller motor and set_position() to the pivot motor. That hardware implementation is the next file to inspect.
